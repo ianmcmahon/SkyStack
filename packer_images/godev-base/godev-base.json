@@ -1,0 +1,83 @@
+{
+  "builders": [{
+    "name": "godev-base",
+    "vm_name": "godev-base",
+    "type": "vmware-iso",
+    "guest_os_type": "ubuntu-64",
+    "tools_upload_flavor": "linux",
+    "headless": true,
+
+    "iso_url": "http://releases.ubuntu.com/xenial/ubuntu-16.04.4-server-amd64.iso",
+    "iso_checksum": "0a03608988cfd2e50567990dc8be96fb3c501e198e2e6efcb846d89efc7b89f2",
+    "iso_checksum_type": "sha256",
+
+    "ssh_username": "ian",
+    "ssh_password": "ian",
+    "ssh_timeout": "15m",
+
+    "disk_type_id": "thin",
+
+    "floppy_files": [
+      "floppy/ubuntu.cfg"
+    ],
+
+    "boot_command": [
+      "<enter><wait><f6><esc><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs>",
+      "<bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs>",
+      "<bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs>",
+      "<bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs>",
+      "/install/vmlinuz noapic ",
+      "preseed/file=/floppy/ubuntu.cfg ",
+      "debian-installer=en_US auto locale=en_US kbd-chooser/method=us ",
+      "hostname={{ .Name }} ",
+      "fb=false debconf/frontend=noninteractive ",
+      "keyboard-configuration/modelcode=SKIP keyboard-configuration/layout=USA ",
+      "keyboard-configuration/variant=USA console-setup/ask_detect=false ",
+      "grub-installer/bootdev=/dev/sda ",
+      "initrd=/install/initrd.gz -- <enter>"
+    ],
+
+    "shutdown_command": "echo 'shutdown -P now' > shutdown.sh; echo 'ian'|sudo -S sh 'shutdown.sh'",
+
+    "remote_type": "esx5",
+    "remote_host": "{{user `esxi_host`}}",
+    "remote_datastore": "{{user `esxi_datastore`}}",
+    "remote_username": "{{user `esxi_username`}}",
+    "remote_password": "{{user `esxi_password`}}",
+    "keep_registered": true,
+    "vnc_disable_password": true,
+
+    "vmx_data": {
+      "ethernet0.networkName": "VM Network"
+    }
+  }],
+  "provisioners": [{
+    "type": "file",
+    "source": "files/etc/sudoers",
+    "destination": "/tmp/sudoers"
+  }, {
+    "type": "file",
+    "source": "files/ssh/authorized_keys",
+    "destination": "/tmp/authorized_keys"
+  }, {
+    "type": "file",
+    "source": "files/profile.d/golang.sh",
+    "destination": "/tmp/golang.sh"
+  }, {
+    "type": "shell",
+    "inline": [
+      "echo 'ian'|sudo -S chown root:root /tmp/sudoers",
+      "echo 'ian'|sudo -S chmod 440 /tmp/sudoers",
+      "echo 'ian'|sudo -S cp /tmp/sudoers /etc",
+      "ssh-keygen",
+      "cp /tmp/authorized_keys $HOME/.ssh/",
+      "sudo apt install software-properties-common",
+      "sudo add-apt-repository ppa:gophers/archive",
+      "sudo apt-get update",
+      "sudo apt-get install golang-1.10-go",
+      "sudo cp /tmp/golang.sh /etc/profile.d",
+      "sudo apt-get install vim-nox",
+      "git clone https://github.com/diverdane/vim-go-ide.git $HOME/.vim_runtime"
+    ]
+  }]
+}
