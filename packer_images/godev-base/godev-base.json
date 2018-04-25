@@ -29,7 +29,7 @@
       "/install/vmlinuz noapic ",
       "preseed/file=/floppy/ubuntu.cfg ",
       "debian-installer=en_US auto locale=en_US kbd-chooser/method=us ",
-      "hostname={{ .Name }} ",
+      "hostname=godev-base ",
       "fb=false debconf/frontend=noninteractive ",
       "keyboard-configuration/modelcode=SKIP keyboard-configuration/layout=USA ",
       "keyboard-configuration/variant=USA console-setup/ask_detect=false ",
@@ -71,13 +71,19 @@
       "echo 'ian'|sudo -S cp /tmp/sudoers /etc",
       "cat /dev/zero | ssh-keygen -q -N ''",
       "cp /tmp/authorized_keys $HOME/.ssh/",
+      "sudo apt-get -y install --no-install-recommends open-vm-tools",
       "sudo apt-get -y install software-properties-common",
       "sudo add-apt-repository -y ppa:gophers/archive",
       "sudo apt-get -y update",
       "sudo apt-get -y install golang-1.10-go",
+      "sudo apt-get -y install exuberant-ctags",
       "sudo cp /tmp/golang.sh /etc/profile.d",
+      ". /etc/profile.d/golang.sh",
       "sudo apt-get -y install vim-nox",
-      "git clone https://github.com/diverdane/vim-go-ide.git $HOME/.vim_runtime"
+      "sudo update-alternatives --set editor /usr/bin/vim.nox",
+      "echo 'export GOPATH=$HOME/go' >> $HOME/.bash_profile",
+      "git clone https://github.com/diverdane/vim-go-ide.git $HOME/.vim_runtime",
+      "$HOME/.vim_runtime/install.sh"
     ]
   }]
 }
