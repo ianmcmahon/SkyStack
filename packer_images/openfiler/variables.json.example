@@ -1,0 +1,7 @@
+{
+  "esxi_host": "192.168.1.100",
+  "esxi_datastore": "5ad9af01-01d49753-bd90-782bcb138af5",
+  "esxi_username": "<user>",
+  "esxi_password": "<passwd>",
+  "esxi_keypath": "<path/to/pubkey>"
+}

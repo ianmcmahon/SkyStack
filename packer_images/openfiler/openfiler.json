@@ -1,0 +1,45 @@
+{
+  "builders": [{
+    "name": "openfiler",
+    "vm_name": "openfiler",
+    "type": "vmware-iso",
+    "guest_os_type": "rhel5-64",
+    "tools_upload_flavor": "linux",
+    "headless": true,
+
+    "iso_url": "https://phoenixnap.dl.sourceforge.net/project/openfiler/openfiler-distribution-iso-2.99-x64/openfileresa-2.99.1-x86_64-disc1.iso",
+    "iso_checksum": "be3be005c9f0a6025731ab8c036dfb0188b0d9c2",
+    "iso_checksum_type": "sha1",
+
+    "ssh_username": "ian",
+    "ssh_password": "ian",
+    "ssh_timeout": "15m",
+
+    "disk_type_id": "thin",
+
+    "floppy_files": [
+      "floppy/ks.cfg"
+    ],
+
+    "boot_command": [
+      "<esc><wait>",
+      "vmlinuz initrd=initrd.img net.ifnames=0 biosdevname=0 ",
+      "ks=floppy",
+      "<enter>"
+    ],
+
+    "shutdown_command": "echo 'shutdown -P now' > shutdown.sh; echo 'ian'|sudo -S sh 'shutdown.sh'",
+
+    "remote_type": "esx5",
+    "remote_host": "{{user `esxi_host`}}",
+    "remote_datastore": "{{user `esxi_datastore`}}",
+    "remote_username": "{{user `esxi_username`}}",
+    "remote_password": "{{user `esxi_password`}}",
+    "keep_registered": true,
+    "vnc_disable_password": true,
+
+    "vmx_data": {
+      "ethernet0.networkName": "VM Network"
+    }
+  }]
+}
