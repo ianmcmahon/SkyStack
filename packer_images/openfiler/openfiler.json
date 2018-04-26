@@ -1,7 +1,7 @@
 {
   "builders": [{
-    "name": "openfiler",
-    "vm_name": "openfiler",
+    "name": "openfiler-base",
+    "vm_name": "openfiler-base",
     "type": "vmware-iso",
     "guest_os_type": "rhel5-64",
     "tools_upload_flavor": "linux",
@@ -11,11 +11,12 @@
     "iso_checksum": "be3be005c9f0a6025731ab8c036dfb0188b0d9c2",
     "iso_checksum_type": "sha1",
 
-    "ssh_username": "ian",
-    "ssh_password": "ian",
-    "ssh_timeout": "15m",
+    "ssh_username": "root",
+    "ssh_password": "root",
+    "ssh_timeout": "30m",
 
     "disk_type_id": "thin",
+    "disk_size": 16384,
 
     "floppy_files": [
       "floppy/ks.cfg"
@@ -28,7 +29,7 @@
       "<enter>"
     ],
 
-    "shutdown_command": "echo 'shutdown -P now' > shutdown.sh; echo 'ian'|sudo -S sh 'shutdown.sh'",
+    "shutdown_command": "shutdown -Ph now",
 
     "remote_type": "esx5",
     "remote_host": "{{user `esxi_host`}}",
@@ -41,5 +42,14 @@
     "vmx_data": {
       "ethernet0.networkName": "VM Network"
     }
+  }],
+  "provisioners": [{
+    "type": "shell",
+    "inline": [
+        "sleep 1",
+        "mount /dev/cdrom /mnt/cdrom",
+        "tar xvfz /mnt/cdrom/VMwareTools-10.2.0-7253323.tar.gz -C /tmp/",
+        "/tmp/vmware-tools-distrib/vmware-install.pl --default"
+    ]
   }]
 }
