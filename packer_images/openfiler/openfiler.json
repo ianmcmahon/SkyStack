@@ -1,7 +1,7 @@
 {
   "builders": [{
-    "name": "openfiler-base",
-    "vm_name": "openfiler-base",
+    "name": "openfiler",
+    "vm_name": "openfiler",
     "type": "vmware-iso",
     "guest_os_type": "rhel5-64",
     "tools_upload_flavor": "linux",
@@ -13,7 +13,17 @@
 
     "ssh_username": "root",
     "ssh_password": "root",
-    "ssh_timeout": "30m",
+    "ssh_timeout": "15m",
+
+    "vmx_data_post": {
+        "memsize": "16384",
+        "numvcpus": "2"
+    },
+
+    "vmx_data": {
+        "ethernet0.networkName": "VM Network",
+        "ethernet0.virtualDev": "e1000"
+    },
 
     "disk_type_id": "thin",
     "disk_size": 16384,
@@ -24,7 +34,7 @@
 
     "boot_command": [
       "<esc><wait>",
-      "vmlinuz initrd=initrd.img net.ifnames=0 biosdevname=0 ",
+      "vmlinuz initrd=initrd.img ",
       "ks=floppy",
       "<enter>"
     ],
@@ -37,19 +47,28 @@
     "remote_username": "{{user `esxi_username`}}",
     "remote_password": "{{user `esxi_password`}}",
     "keep_registered": true,
-    "vnc_disable_password": true,
-
-    "vmx_data": {
-      "ethernet0.networkName": "VM Network"
-    }
+    "vnc_disable_password": true
   }],
   "provisioners": [{
+    "type": "file",
+    "source": "files/etc/udev/rules.d/70-persistent-net.rules",
+    "destination": "/tmp/70-persistent-net.rules"
+  }, {
+    "type": "file",
+    "source": "files/etc/sysconfig/network-scripts/ifcfg-eth0",
+    "destination": "/tmp/ifcfg-eth0"
+  }, {
     "type": "shell",
     "inline": [
-        "sleep 1",
+        "hostname openfiler",
+        "echo \"openfiler\" > /etc/hostname",
+        "echo \"NETWORKING=yes\nHOSTNAME=openfiler.{{user `localdomain`}}\" > /etc/sysconfig/network",
+        "sleep 2",
         "mount /dev/cdrom /mnt/cdrom",
         "tar xvfz /mnt/cdrom/VMwareTools-10.2.0-7253323.tar.gz -C /tmp/",
-        "/tmp/vmware-tools-distrib/vmware-install.pl --default"
+        "/tmp/vmware-tools-distrib/vmware-install.pl --default",
+        "cp /tmp/70-persistent-net.rules /etc/udev/rules.d/70-persistent-net.rules",
+        "cp /tmp/ifcfg-eth0 /etc/sysconfig/network-scripts/ifcfg-eth0"
     ]
   }]
 }
