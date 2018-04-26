@@ -1,0 +1,5 @@
+esxi_template = "<template>"
+
+esxi_username = "<username>"
+esxi_password = "<password>"
+esxi_vsphere_host = "10.0.0.10"
